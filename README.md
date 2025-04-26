@@ -72,7 +72,7 @@ For **AzCobaltProphet.ps1** and **AzPermissionEnumerator.ps1**:
 Install-Module -Name Az -Scope CurrentUser -Repository PSGallery -Force
 
 # Clone the repository or download the scripts
-git clone https://github.com/yourusername/AzureEnumerationToolkit.git
+git clone https://github.com/watson0x90/AzureEnumerationToolkit.git
 cd AzureEnumerationToolkit
 
 # Import any of the modules
