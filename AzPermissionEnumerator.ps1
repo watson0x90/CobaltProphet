@@ -7,7 +7,7 @@ A PowerShell script that identifies Azure permissions and access levels for user
 direct subscription access. Focuses on user roles, permissions, and accessible resources.
 
 .NOTES
-Author: Based on Ryan Watson's COBALT PROPHET toolkit
+Author: Ryan Watson (watson0x90)
 Version: 1.0.0
 Requires: PowerShell 5.1 or higher, Az PowerShell modules
 #>
