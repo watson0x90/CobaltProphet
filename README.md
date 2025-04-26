@@ -1,4 +1,4 @@
-# COBALT PROPHET AZURE ENUMERATION TOOLKIT
+# AZURE ENUMERATION TOOLKIT
 <img src="imgs/cobalt_prophet_logo.png" alt="COBALT PROPHET LOGO" width="750" />
 
 ![Azure](https://img.shields.io/badge/Azure-0078D4?style=for-the-badge&logo=microsoftazure&logoColor=white)
@@ -6,16 +6,20 @@
 ![Version](https://img.shields.io/badge/Version-1.0.0-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-The COBALT PROPHET toolkit consists of two complementary PowerShell-based tools for Azure cloud environment enumeration and reconnaissance, designed specifically for red team operations and security assessments.
-
-## Overview
-
-The COBALT PROPHET toolkit enables security professionals to efficiently gather intelligence about Azure environments. Both tools map accessible resources, identify permissions, discover security weaknesses, and generate detailed reports to support informed security assessments, but use different approaches:
+This toolkit consists of three complementary PowerShell-based tools for Azure cloud environment enumeration and reconnaissance, designed for security assessments across different access levels:
 
 - **CobaltProphet.ps1**: Uses direct Azure Management REST API calls with JWT token authentication
 - **AzCobaltProphet.ps1**: Leverages official Az PowerShell modules with standard Azure authentication workflows
+- **AzPermissionEnumerator.ps1**: Focuses on user permission enumeration without requiring subscription access
 
 ![COBALT PROPHET](imgs/image.png)
+
+## Overview
+
+The Azure Enumeration Toolkit enables security professionals to efficiently gather intelligence about Azure environments across all access levels. Each tool provides specific capabilities:
+
+- **CobaltProphet.ps1 and AzCobaltProphet.ps1**: Map accessible resources, identify permissions, discover security weaknesses, and generate detailed reports when you have subscription-level access
+- **AzPermissionEnumerator.ps1**: Focuses on identifying what a user can do in an Azure environment even without subscription access, perfect for least-privilege assessment
 
 ## Features
 
@@ -33,6 +37,14 @@ The COBALT PROPHET toolkit enables security professionals to efficiently gather 
 - **Network Security Analysis**: Maps NSGs and public IP addresses
 - **Secret Management Evaluation**: Tests access to storage account keys and connection strings
 
+### User-Focused Enumeration (AzPermissionEnumerator.ps1)
+
+- **Identity-Centric Analysis**: Examines user roles and permissions directly without needing subscription access
+- **Token Examination**: Analyzes available tokens to discover passthrough authentication possibilities
+- **Direct ARM API Testing**: Tests access to Azure Resource Manager APIs regardless of subscription visibility
+- **Provider-Level Access**: Identifies which resource providers the user can interact with
+- **Resource Discovery**: Finds resources the user has direct access to even without subscription enumeration
+
 ### Comprehensive Reporting
 
 - **CSV Data Export**: All findings are exported to structured CSV files
@@ -45,42 +57,50 @@ The COBALT PROPHET toolkit enables security professionals to efficiently gather 
 ### Prerequisites
 
 - PowerShell 5.1 or higher
-- Azure subscription access
+- Azure subscription or user account access
 
 For **CobaltProphet.ps1** (REST API approach):
 - Optional: MSAL.PS module for token acquisition
 
-For **AzCobaltProphet.ps1** (Az modules approach):
+For **AzCobaltProphet.ps1** and **AzPermissionEnumerator.ps1**:
 - Az PowerShell modules
 
 ### Installation Steps
-
-#### CobaltProphet.ps1 (REST API approach)
-
-```powershell
-# Clone the repository
-git clone https://github.com/watson0x90/CobaltProphet.git
-cd CobaltProphet
-
-# Import the module
-Import-Module .\CobaltProphet.ps1
-```
-
-#### AzCobaltProphet.ps1 (Az modules approach)
 
 ```powershell
 # Install Az PowerShell modules if not already installed
 Install-Module -Name Az -Scope CurrentUser -Repository PSGallery -Force
 
-# Clone the repository or download the script
-git clone https://github.com/yourusername/AzCobaltProphet.git
-cd AzCobaltProphet
+# Clone the repository or download the scripts
+git clone https://github.com/yourusername/AzureEnumerationToolkit.git
+cd AzureEnumerationToolkit
 
-# Import the module
+# Import any of the modules
+Import-Module .\CobaltProphet.ps1
+# OR
 Import-Module .\AzCobaltProphet.ps1
+# OR
+Import-Module .\AzPermissionEnumerator.ps1
 ```
 
 ## Usage Comparison
+
+### AzPermissionEnumerator.ps1 (Limited-Access Approach)
+
+```powershell
+# Connect to Azure and start enumeration in one step
+Start-AzUserPermissionAudit -Interactive
+
+# Or if already connected
+Connect-AzAccount
+Start-AzUserPermissionEnumeration
+
+# Generate HTML reports only
+Start-AzUserPermissionEnumeration -ReportFormat "HTML"
+
+# Individual function example
+$roleAssignments = Get-AzUserAssignedRoles
+```
 
 ### CobaltProphet.ps1 (REST API approach)
 
@@ -118,7 +138,80 @@ Start-AzCPAudit -Interactive -Comprehensive
 $storageAccounts = Get-AzCPStorageAccounts -SubscriptionID "your-subscription-id"
 ```
 
+## Choosing Between the Tools
+
+### AzPermissionEnumerator.ps1 (Limited-Access Focus)
+
+**Advantages:**
+- Works without subscription access
+- Focuses on user permissions and capabilities
+- Identity-centric approach discovers what actions are possible
+- Identifies direct resource access even when subscriptions aren't visible
+- Analyzes token capabilities for passthrough authentication
+
+**Best for:**
+- Regular user permission assessment
+- Least-privilege reviews and authorization testing
+- Security audits of user access rights
+- Environments with strict RBAC limitations
+- Privilege escalation testing
+
+### CobaltProphet.ps1 (REST API approach)
+
+**Advantages:**
+- Direct API interaction with minimal dependencies
+- JWT token-based authentication for scenarios where interactive login isn't possible
+- Can be used in environments without Az PowerShell modules
+- Potentially lower detection footprint with targeted API calls
+
+**Best for:**
+- Red team operations requiring maximum stealth
+- Scenarios requiring token-based authentication
+- Environments with restricted PowerShell module installation
+- Operations from non-Windows environments
+
+### AzCobaltProphet.ps1 (Az modules approach)
+
+**Advantages:**
+- Simplified authentication using standard Az PowerShell workflows
+- Improved reliability through Microsoft's tested and supported modules
+- Better error handling with more detailed information
+- No need to manage API versions or REST endpoint details
+- Easier to maintain and update
+
+**Best for:**
+- Standard security assessments and audits
+- Environments with Az PowerShell already installed
+- Operations requiring interactive authentication
+- Teams more familiar with PowerShell than REST APIs
+
+## Use Cases
+
+- **Full Access Assessment**: Use AzCobaltProphet.ps1 or CobaltProphet.ps1 for complete environment mapping
+- **Limited Access Assessment**: Use AzPermissionEnumerator.ps1 for user-centric permission analysis
+- **Red Team Operations**: Use all three tools based on obtained credentials and access levels
+- **Privilege Escalation Testing**: Start with AzPermissionEnumerator.ps1 to identify potential paths
+- **Security Compliance**: Audit Azure environments against security best practices
+- **Least Privilege Validation**: Verify users have only the permissions they need with AzPermissionEnumerator.ps1
+
 ## Function Reference
+
+### AzPermissionEnumerator.ps1 (Limited-Access Focus)
+
+| Function | Description |
+|----------|-------------|
+| `Start-AzUserPermissionEnumeration` | Main function to enumerate user permissions |
+| `Start-AzUserPermissionAudit` | Combines authentication and enumeration in one step |
+| `Get-AzUserInfo` | Gets current user information |
+| `Get-AzUserAssignedRoles` | Lists role assignments for the current user |
+| `Get-AzUserAccessibleSubscriptions` | Tries to list accessible subscriptions |
+| `Get-AzUserAccessibleResources` | Discovers resources the user can access |
+| `Test-AzUserResourceActions` | Tests what actions a user can perform on a resource |
+| `Get-AzUserARMAccess` | Tests direct ARM API access |
+| `Test-AzPassthroughAuth` | Checks for passthrough authentication capabilities |
+| `Get-AzUserDirectoryGroups` | Lists Azure AD group memberships |
+| `New-AzUserPermissionMDReport` | Generates markdown reports |
+| `New-AzUserPermissionHTMLReport` | Generates HTML reports |
 
 ### CobaltProphet.ps1 (REST API approach)
 
@@ -159,40 +252,9 @@ $storageAccounts = Get-AzCPStorageAccounts -SubscriptionID "your-subscription-id
 | `New-AzCPEnumerationMarkdownReport` | Generates markdown reports |
 | `New-AzCPEnumerationHtmlReport` | Generates HTML reports |
 
-## Choosing Between the Tools
-
-### CobaltProphet.ps1 (REST API approach)
-
-**Advantages:**
-- Direct API interaction with minimal dependencies
-- JWT token-based authentication for scenarios where interactive login isn't possible
-- Can be used in environments without Az PowerShell modules
-- Potentially lower detection footprint with targeted API calls
-
-**Best for:**
-- Red team operations requiring maximum stealth
-- Scenarios requiring token-based authentication
-- Environments with restricted PowerShell module installation
-- Operations from non-Windows environments
-
-### AzCobaltProphet.ps1 (Az modules approach)
-
-**Advantages:**
-- Simplified authentication using standard Az PowerShell workflows
-- Improved reliability through Microsoft's tested and supported modules
-- Better error handling with more detailed information
-- No need to manage API versions or REST endpoint details
-- Easier to maintain and update
-
-**Best for:**
-- Standard security assessments and audits
-- Environments with Az PowerShell already installed
-- Operations requiring interactive authentication
-- Teams more familiar with PowerShell than REST APIs
-
 ## Report Examples
 
-The reports generated by both tools provide the same features and format:
+The reports generated by all three tools provide the same features and format:
 
 ### HTML Report
 
@@ -211,20 +273,13 @@ The markdown report offers:
 - Summarized findings for quick review
 - Links to detailed data reports
 
-## Use Cases
-
-- **Security Assessments**: Evaluate Azure environments for security weaknesses
-- **Red Team Operations**: Map attack surfaces and identify privilege escalation paths
-- **Penetration Testing**: Discover potential entry points and security misconfigurations
-- **Security Compliance**: Audit Azure environments against security best practices
-- **Security Posture Evaluation**: Assess the overall security posture of Azure deployments
-
 ## Operational Security Considerations
 
-Both tools are designed with operational security in mind:
+All tools are designed with operational security in mind:
 - Option for lightweight markdown reports to avoid browser activity
 - Structured output for easy integration with other tools
 - Avoids unnecessary or potentially detectable operations
+- AzPermissionEnumerator.ps1 specifically designed for minimal-footprint enumeration
 
 ## Contributing
 
@@ -242,4 +297,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Disclaimer
 
-The COBALT PROPHET toolkit is intended for authorized security testing and assessment only. The authors are not responsible for any misuse or damage caused by these tools. Always ensure you have proper authorization before conducting security assessments.
+The Azure Enumeration Toolkit is intended for authorized security testing and assessment only. The authors are not responsible for any misuse or damage caused by these tools. Always ensure you have proper authorization before conducting security assessments.
