@@ -50,8 +50,8 @@ COBALT PROPHET enables security professionals to efficiently gather intelligence
 
 ```powershell
 # Clone the repository
-git clone https://github.com/watson0x90/cobalt-prophet.git
-cd cobalt-prophet
+git clone https://github.com/watson0x90/CobaltProphet.git
+cd CobaltProphet
 
 # Import the module
 Import-Module .\CobaltProphet.ps1
