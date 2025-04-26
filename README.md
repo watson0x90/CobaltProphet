@@ -1,4 +1,5 @@
 # COBALT PROPHET
+<img src="imgs/cobalt_prophet_logo.png" alt="COBALT PROPHET LOGO" width="750" />
 
 ![Azure](https://img.shields.io/badge/Azure-0078D4?style=for-the-badge&logo=microsoftazure&logoColor=white)
 ![PowerShell](https://img.shields.io/badge/PowerShell-5391FE?style=for-the-badge&logo=powershell&logoColor=white)
