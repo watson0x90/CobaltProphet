@@ -1,4 +1,4 @@
-# COBALT PROPHET
+# COBALT PROPHET AZURE ENUMERATION TOOLKIT
 <img src="imgs/cobalt_prophet_logo.png" alt="COBALT PROPHET LOGO" width="750" />
 
 ![Azure](https://img.shields.io/badge/Azure-0078D4?style=for-the-badge&logo=microsoftazure&logoColor=white)
@@ -6,13 +6,14 @@
 ![Version](https://img.shields.io/badge/Version-1.0.0-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-COBALT PROPHET is a comprehensive PowerShell-based tool for Azure cloud environment enumeration and reconnaissance, designed specifically for red team operations and security assessments.
+The COBALT PROPHET toolkit consists of two complementary PowerShell-based tools for Azure cloud environment enumeration and reconnaissance, designed specifically for red team operations and security assessments.
 
 ## Overview
 
-COBALT PROPHET enables security professionals to efficiently gather intelligence about Azure environments using only Azure Management API endpoints. The tool maps accessible resources, identifies permissions, discovers security weaknesses, and generates detailed reports to support informed security assessments.  
+The COBALT PROPHET toolkit enables security professionals to efficiently gather intelligence about Azure environments. Both tools map accessible resources, identify permissions, discover security weaknesses, and generate detailed reports to support informed security assessments, but use different approaches:
 
-**NOTE**: It is important to note that this will enumerate and provide information back for the TOKEN provided. 
+- **CobaltProphet.ps1**: Uses direct Azure Management REST API calls with JWT token authentication
+- **AzCobaltProphet.ps1**: Leverages official Az PowerShell modules with standard Azure authentication workflows
 
 ![COBALT PROPHET](imgs/image.png)
 
@@ -44,10 +45,17 @@ COBALT PROPHET enables security professionals to efficiently gather intelligence
 ### Prerequisites
 
 - PowerShell 5.1 or higher
-- Azure subscription access (token required)
+- Azure subscription access
+
+For **CobaltProphet.ps1** (REST API approach):
 - Optional: MSAL.PS module for token acquisition
 
+For **AzCobaltProphet.ps1** (Az modules approach):
+- Az PowerShell modules
+
 ### Installation Steps
+
+#### CobaltProphet.ps1 (REST API approach)
 
 ```powershell
 # Clone the repository
@@ -58,9 +66,23 @@ cd CobaltProphet
 Import-Module .\CobaltProphet.ps1
 ```
 
-## Usage
+#### AzCobaltProphet.ps1 (Az modules approach)
 
-### Basic Usage
+```powershell
+# Install Az PowerShell modules if not already installed
+Install-Module -Name Az -Scope CurrentUser -Repository PSGallery -Force
+
+# Clone the repository or download the script
+git clone https://github.com/yourusername/AzCobaltProphet.git
+cd AzCobaltProphet
+
+# Import the module
+Import-Module .\AzCobaltProphet.ps1
+```
+
+## Usage Comparison
+
+### CobaltProphet.ps1 (REST API approach)
 
 ```powershell
 # Get a token (requires MSAL.PS module)
@@ -69,37 +91,36 @@ Start-AzureEnumeration -Token $token
 
 # Run basic enumeration with token in JWT Format
 Start-AzureEnumeration -Token "eyJ0eX..."
-```
 
-### Advanced Usage
-
-```powershell
 # Comprehensive enumeration with HTML report only
 Start-AzureEnumeration -Token $token -Comprehensive -ReportFormat "HTML"
 
-# Targeted enumeration with custom output directory
-Start-AzureEnumeration -Token $token -OutputDirectory "C:\AzureAudit" -ReportFormat "Both"
-
-# Quick data collection without report generation, output csv only
-Start-AzureEnumeration -Token $token -ReportFormat "None"
+# Individual function example
+$storageAccounts = Get-AzureStorageAccounts -Token $token -SubscriptionID "your-subscription-id"
 ```
 
-### Individual Function Usage
-
-COBALT PROPHET provides modular functions that can be used individually:
+### AzCobaltProphet.ps1 (Az modules approach)
 
 ```powershell
-# Get all storage accounts in a subscription
-$storageAccounts = Get-AzureStorageAccounts -Token $token -SubscriptionID "your-subscription-id"
+# Authenticate to Azure first
+Connect-AzAccount
 
-# Check for storage accounts with anonymous access
-$publicStorage = Get-AzureStorageAccountsWithAnonymousAccess -Token $token -SubscriptionID "your-subscription-id"
+# Run basic enumeration
+Start-AzCPEnumeration
 
-# Test permissions on a specific resource
-$permissions = Test-AzureResourceActions -Token $token -ResourceID "/subscriptions/your-subscription-id/resourceGroups/your-rg/providers/Microsoft.KeyVault/vaults/your-keyvault"
+# Comprehensive enumeration with HTML reports only
+Start-AzCPEnumeration -Comprehensive -ReportFormat "HTML"
+
+# One-step authentication and enumeration
+Start-AzCPAudit -Interactive -Comprehensive
+
+# Individual function example
+$storageAccounts = Get-AzCPStorageAccounts -SubscriptionID "your-subscription-id"
 ```
 
 ## Function Reference
+
+### CobaltProphet.ps1 (REST API approach)
 
 | Function | Description |
 |----------|-------------|
@@ -118,7 +139,60 @@ $permissions = Test-AzureResourceActions -Token $token -ResourceID "/subscriptio
 | `New-AzureEnumerationMarkdownReport` | Generates markdown reports |
 | `New-AzureEnumerationHtmlReport` | Generates HTML reports |
 
+### AzCobaltProphet.ps1 (Az modules approach)
+
+| Function | Description |
+|----------|-------------|
+| `Start-AzCPEnumeration` | Main function to perform comprehensive enumeration |
+| `Start-AzCPAudit` | Combines authentication and enumeration in one step |
+| `Get-AzCPSubscriptionID` | Discovers accessible Azure subscriptions |
+| `Get-AzCPResourceList` | Lists all resources in a subscription |
+| `Get-AzCPResourceGroups` | Lists all resource groups in a subscription |
+| `Get-AzCPVirtualMachines` | Enumerates virtual machines |
+| `Get-AzCPKeyVaults` | Enumerates key vaults |
+| `Get-AzCPStorageAccounts` | Enumerates storage accounts |
+| `Get-AzCPStorageAccountsWithAnonymousAccess` | Identifies public storage accounts |
+| `Test-AzCPResourceActions` | Tests permissions on Azure resources |
+| `Get-AzCPResourcePermissions` | Gets permissions for a specific resource |
+| `Get-AzCPNetworkSecurityGroups` | Lists network security groups |
+| `Get-AzCPPublicIPAddresses` | Lists public IP addresses |
+| `New-AzCPEnumerationMarkdownReport` | Generates markdown reports |
+| `New-AzCPEnumerationHtmlReport` | Generates HTML reports |
+
+## Choosing Between the Tools
+
+### CobaltProphet.ps1 (REST API approach)
+
+**Advantages:**
+- Direct API interaction with minimal dependencies
+- JWT token-based authentication for scenarios where interactive login isn't possible
+- Can be used in environments without Az PowerShell modules
+- Potentially lower detection footprint with targeted API calls
+
+**Best for:**
+- Red team operations requiring maximum stealth
+- Scenarios requiring token-based authentication
+- Environments with restricted PowerShell module installation
+- Operations from non-Windows environments
+
+### AzCobaltProphet.ps1 (Az modules approach)
+
+**Advantages:**
+- Simplified authentication using standard Az PowerShell workflows
+- Improved reliability through Microsoft's tested and supported modules
+- Better error handling with more detailed information
+- No need to manage API versions or REST endpoint details
+- Easier to maintain and update
+
+**Best for:**
+- Standard security assessments and audits
+- Environments with Az PowerShell already installed
+- Operations requiring interactive authentication
+- Teams more familiar with PowerShell than REST APIs
+
 ## Report Examples
+
+The reports generated by both tools provide the same features and format:
 
 ### HTML Report
 
@@ -147,8 +221,7 @@ The markdown report offers:
 
 ## Operational Security Considerations
 
-COBALT PROPHET is designed with operational security in mind:
-- Minimal API calls to reduce detection footprint
+Both tools are designed with operational security in mind:
 - Option for lightweight markdown reports to avoid browser activity
 - Structured output for easy integration with other tools
 - Avoids unnecessary or potentially detectable operations
@@ -169,6 +242,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Disclaimer
 
-COBALT PROPHET is intended for authorized security testing and assessment only. The authors are not responsible for any misuse or damage caused by this tool. Always ensure you have proper authorization before conducting security assessments.
----
-
+The COBALT PROPHET toolkit is intended for authorized security testing and assessment only. The authors are not responsible for any misuse or damage caused by these tools. Always ensure you have proper authorization before conducting security assessments.
