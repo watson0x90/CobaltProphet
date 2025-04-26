@@ -1,4 +1,4 @@
-# AZURE ENUMERATION TOOLKIT
+# CobaltProphet - AZURE ENUMERATION TOOLKIT
 <img src="imgs/cobalt_prophet_logo.png" alt="COBALT PROPHET LOGO" width="750" />
 
 ![Azure](https://img.shields.io/badge/Azure-0078D4?style=for-the-badge&logo=microsoftazure&logoColor=white)
@@ -72,8 +72,8 @@ For **AzCobaltProphet.ps1** and **AzPermissionEnumerator.ps1**:
 Install-Module -Name Az -Scope CurrentUser -Repository PSGallery -Force
 
 # Clone the repository or download the scripts
-git clone https://github.com/watson0x90/AzureEnumerationToolkit.git
-cd AzureEnumerationToolkit
+git clone https://github.com/watson0x90/CobaltProphet.git
+cd CobaltProphet
 
 # Import any of the modules
 Import-Module .\CobaltProphet.ps1
